@@ -1,132 +1,132 @@
-<?xml version="1.0" ?><svg height="297.000000mm" version="1.0" viewBox="0 0 793 1122" width="210.000000mm" xmlns="http://www.w3.org/2000/svg">
-  <g font-family="Helvetica" font-size="12pt" stroke-linecap="round">
+<?xml version="1.0" ?><svg height="29.89792mm" version="1.0" viewBox="0 0 265 113" width="70.11458mm" xmlns="http://www.w3.org/2000/svg">
+  <g font-family="Helvetica" font-size="12pt" stroke-linecap="round" transform="translate(-26,-7)">
+    <g stroke="#000000" stroke-linecap="butt" stroke-width="1.0">
+      <line x1="243.83" x2="251.83" y1="38.57" y2="32.78"/>
+      <line x1="246.17" x2="254.17" y1="41.81" y2="36.01"/>
+    </g>
     <g stroke="#000000" stroke-width="1.0">
-      <line x1="192.91" x2="215.82" y1="44.77" y2="57.99"/>
+      <line x1="215.81" x2="232.00" y1="57.98" y2="48.63"/>
+    </g>
+    <g stroke="#000000" stroke-width="1.0">
+      <line x1="147.10" x2="124.16" y1="44.79" y2="58.02"/>
+    </g>
+    <g stroke="#000000" stroke-width="1.0">
+      <line x1="117.00" x2="101.25" y1="88.61" y2="97.70"/>
+    </g>
+    <g stroke="#000000" stroke-linecap="butt" stroke-width="1.0">
+      <line x1="230.82" x2="222.82" y1="41.49" y2="35.68"/>
+      <line x1="233.18" x2="225.18" y1="38.26" y2="32.45"/>
+    </g>
+    <g stroke="#000000" stroke-width="1.0">
+      <line x1="177.00" x2="192.91" y1="53.96" y2="44.75"/>
+    </g>
+    <g stroke="#000000" stroke-width="1.0">
+      <line x1="101.25" x2="78.35" y1="97.70" y2="84.47"/>
+    </g>
+    <g stroke="#000000" stroke-width="1.0">
+      <line x1="170.00" x2="170.00" y1="84.47" y2="66.00"/>
+    </g>
+    <g stroke="#000000" stroke-width="1.0">
+      <line x1="78.35" x2="62.00" y1="84.47" y2="93.92"/>
+    </g>
+    <g stroke="#000000" stroke-width="1.0">
+      <line x1="147.10" x2="170.00" y1="97.66" y2="84.47"/>
+    </g>
+    <g stroke="#000000" stroke-width="1.0">
+      <line x1="163.00" x2="147.10" y1="53.97" y2="44.79"/>
+    </g>
+    <g stroke="#000000" stroke-width="1.0">
+      <line x1="131.00" x2="147.10" y1="88.41" y2="97.66"/>
+    </g>
+    <g stroke="#000000" stroke-width="1.0">
+      <line x1="192.91" x2="215.81" y1="44.75" y2="57.98"/>
     </g>
     <g stroke="#000000" stroke-linecap="butt" stroke-width="1.0">
       <line x1="245.00" x2="255.00" y1="48.37" y2="54.14"/>
     </g>
-    <g stroke="#000000" stroke-linecap="butt" stroke-width="1.0">
-      <line x1="243.82" x2="251.82" y1="38.58" y2="32.77"/>
-      <line x1="246.18" x2="254.18" y1="41.82" y2="36.00"/>
-    </g>
     <g stroke="#000000" stroke-width="1.0">
-      <line x1="215.82" x2="232.00" y1="57.99" y2="48.64"/>
+      <line x1="124.16" x2="124.16" y1="58.02" y2="72.00"/>
     </g>
-    <g stroke="#000000" stroke-linecap="butt" stroke-width="1.0">
-      <line x1="230.82" x2="222.82" y1="41.48" y2="35.67"/>
-      <line x1="233.18" x2="225.18" y1="38.24" y2="32.43"/>
-    </g>
-    <g stroke="#000000" stroke-width="1.0">
-      <line x1="177.00" x2="192.91" y1="53.96" y2="44.77"/>
-    </g>
-    <g stroke="#000000" stroke-width="1.0">
-      <line x1="78.34" x2="62.00" y1="84.46" y2="93.90"/>
-    </g>
-    <g stroke="#000000" stroke-width="1.0">
-      <line x1="147.08" x2="170.00" y1="97.67" y2="84.46"/>
-    </g>
-    <g stroke="#000000" stroke-width="1.0">
-      <line x1="131.00" x2="147.08" y1="88.40" y2="97.67"/>
-    </g>
-    <g stroke="#000000" stroke-width="1.0">
-      <line x1="170.00" x2="170.00" y1="84.46" y2="66.00"/>
-    </g>
-    <g stroke="#000000" stroke-width="1.0">
-      <line x1="117.00" x2="101.25" y1="88.59" y2="97.69"/>
-    </g>
-    <g stroke="#000000" stroke-width="1.0">
-      <line x1="124.16" x2="124.16" y1="58.00" y2="72.00"/>
-    </g>
-    <g stroke="#000000" stroke-width="1.0">
-      <line x1="163.00" x2="147.08" y1="53.96" y2="44.78"/>
-    </g>
-    <g stroke="#000000" stroke-width="1.0">
-      <line x1="101.25" x2="78.34" y1="97.69" y2="84.46"/>
-    </g>
-    <g stroke="#000000" stroke-width="1.0">
-      <line x1="147.08" x2="124.16" y1="44.78" y2="58.00"/>
-    </g>
-    <text fill="#000000" font-family="helvetica" font-size="12pt" x="164.30" y="63.00">N</text>
-    <text fill="#000000" font-family="helvetica" font-size="12pt" x="118.30" y="89.46">N</text>
+    <text fill="#000000" font-family="helvetica" font-size="12pt" x="164.30" y="63.02">N</text>
+    <text fill="#000000" font-family="helvetica" font-size="12pt" x="118.30" y="89.47">N</text>
     <text fill="#000000" font-family="helvetica" font-size="12pt" x="233.30" y="49.75">S</text>
-    <text fill="#000000" font-family="helvetica" font-size="12pt" x="256.30" y="62.97">OH</text>
-    <text fill="#000000" font-family="helvetica" font-size="12pt" x="211.30" y="34.20">O</text>
-    <text fill="#000000" font-family="helvetica" font-size="12pt" x="254.30" y="34.20">O</text>
-    <text fill="#000000" font-family="helvetica" font-size="12pt" x="37.30" y="102.69">HO</text>
+    <text fill="#000000" font-family="helvetica" font-size="12pt" x="256.30" y="62.98">OH</text>
+    <text fill="#000000" font-family="helvetica" font-size="12pt" x="211.30" y="34.22">O</text>
+    <text fill="#000000" font-family="helvetica" font-size="12pt" x="254.30" y="34.22">O</text>
+    <text fill="#000000" font-family="helvetica" font-size="12pt" x="37.30" y="102.70">HO</text>
   </g>
   <cdml version="0.15" xmlns="http://www.freesoftware.fsf.org/bkchem/cdml">
     <info>
       <author_program version="0.13.0">BKchem</author_program>
     </info>
-    <paper crop_margin="10" crop_svg="0" orientation="portrait" replace_minus="0" type="A4" use_real_minus="0"/>
+    <paper crop_margin="10" crop_svg="1" orientation="portrait" replace_minus="0" type="A7" use_real_minus="0"/>
     <viewport viewport="0.000000 0.000000 640.000000 480.000000"/>
     <standard area_color="" font_family="helvetica" font_size="12" line_color="#000" line_width="1px" paper_crop_margin="10" paper_crop_svg="0" paper_orientation="portrait" paper_type="A4">
       <bond double-ratio="0.75" length="0.7cm" wedge-width="5px" width="6px"/>
       <arrow length="1.6cm"/>
       <atom show_hydrogens="0"/>
     </standard>
-    <molecule id="molecule30359" name="">
-      <atom id="atom12602" name="C" valency="4">
+    <molecule id="molecule15305" name="">
+      <atom id="atom34086" name="C" valency="4">
         <point x="3.892cm" y="2.584cm"/>
       </atom>
-      <atom id="atom64297" name="C" valency="4">
+      <atom id="atom45197" name="C" valency="4">
         <point x="4.498cm" y="2.235cm"/>
       </atom>
-      <atom id="atom44452" name="C" valency="4">
+      <atom id="atom11552" name="C" valency="4">
         <point x="3.892cm" y="1.185cm"/>
       </atom>
-      <atom id="atom85327" name="C" valency="4">
+      <atom id="atom53905" name="C" valency="4">
         <point x="3.285cm" y="1.535cm"/>
       </atom>
-      <atom id="atom59081" name="N" pos="center-first" valency="3">
+      <atom id="atom78936" name="N" pos="center-first" valency="3">
         <point x="4.498cm" y="1.535cm"/>
       </atom>
-      <atom id="atom37684" name="N" pos="center-last" valency="3">
+      <atom id="atom89537" name="N" pos="center-last" valency="3">
         <point x="3.285cm" y="2.235cm"/>
       </atom>
-      <atom id="atom83059" name="C" valency="4">
+      <atom id="atom97982" name="C" valency="4">
         <point x="5.104cm" y="1.184cm"/>
       </atom>
-      <atom id="atom26678" name="C" valency="4">
+      <atom id="atom71011" name="C" valency="4">
         <point x="5.710cm" y="1.534cm"/>
       </atom>
-      <atom id="atom50971" name="S" pos="center-first" valency="6">
+      <atom id="atom46360" name="S" pos="center-first" valency="6">
         <point x="6.316cm" y="1.184cm"/>
       </atom>
-      <atom hydrogens="on" id="atom22189" name="O" pos="center-first" valency="2">
+      <atom hydrogens="on" id="atom20678" name="O" pos="center-first" valency="2">
         <point x="6.923cm" y="1.534cm"/>
       </atom>
-      <atom id="atom22340" name="O" pos="center-first" valency="2">
+      <atom id="atom20166" name="O" pos="center-first" valency="2">
         <point x="5.750cm" y="0.773cm"/>
       </atom>
-      <atom id="atom67945" name="O" pos="center-first" valency="2">
+      <atom id="atom31798" name="O" pos="center-first" valency="2">
         <point x="6.883cm" y="0.773cm"/>
       </atom>
-      <atom id="atom76538" name="C" valency="4">
+      <atom id="atom88310" name="C" valency="4">
         <point x="2.679cm" y="2.585cm"/>
       </atom>
-      <atom id="atom80374" name="C" valency="4">
+      <atom id="atom18195" name="C" valency="4">
         <point x="2.073cm" y="2.235cm"/>
       </atom>
-      <atom hydrogens="on" id="atom82448" name="O" pos="center-last" valency="2">
+      <atom hydrogens="on" id="atom21815" name="O" pos="center-last" valency="2">
         <point x="1.467cm" y="2.585cm"/>
       </atom>
-      <bond double_ratio="0.75" end="atom26678" id="bond88925" line_width="1.0" start="atom83059" type="n1"/>
-      <bond double_ratio="0.75" end="atom22189" id="bond24093" line_width="1.0" start="atom50971" type="n1"/>
-      <bond bond_width="6.0" center="yes" double_ratio="0.75" end="atom67945" id="bond57495" line_width="1.0" start="atom50971" type="n2"/>
-      <bond double_ratio="0.75" end="atom50971" id="bond40021" line_width="1.0" start="atom26678" type="n1"/>
-      <bond bond_width="6.0" center="yes" double_ratio="0.75" end="atom22340" id="bond9372" line_width="1.0" start="atom50971" type="n2"/>
-      <bond double_ratio="0.75" end="atom83059" id="bond25018" line_width="1.0" start="atom59081" type="n1"/>
-      <bond double_ratio="0.75" end="atom82448" id="bond50502" line_width="1.0" start="atom80374" type="n1"/>
-      <bond double_ratio="0.75" end="atom64297" id="bond47154" line_width="1.0" start="atom12602" type="n1"/>
-      <bond double_ratio="0.75" end="atom12602" id="bond27519" line_width="1.0" start="atom37684" type="n1"/>
-      <bond double_ratio="0.75" end="atom59081" id="bond63322" line_width="1.0" start="atom64297" type="n1"/>
-      <bond double_ratio="0.75" end="atom76538" id="bond37149" line_width="1.0" start="atom37684" type="n1"/>
-      <bond double_ratio="0.75" end="atom37684" id="bond14202" line_width="1.0" start="atom85327" type="n1"/>
-      <bond double_ratio="0.75" end="atom44452" id="bond17008" line_width="1.0" start="atom59081" type="n1"/>
-      <bond double_ratio="0.75" end="atom80374" id="bond23882" line_width="1.0" start="atom76538" type="n1"/>
-      <bond double_ratio="0.75" end="atom85327" id="bond52889" line_width="1.0" start="atom44452" type="n1"/>
+      <bond bond_width="6.0" center="yes" double_ratio="0.75" end="atom31798" id="bond4768" line_width="1.0" start="atom46360" type="n2"/>
+      <bond double_ratio="0.75" end="atom46360" id="bond53738" line_width="1.0" start="atom71011" type="n1"/>
+      <bond double_ratio="0.75" end="atom53905" id="bond3248" line_width="1.0" start="atom11552" type="n1"/>
+      <bond double_ratio="0.75" end="atom88310" id="bond16574" line_width="1.0" start="atom89537" type="n1"/>
+      <bond bond_width="6.0" center="yes" double_ratio="0.75" end="atom20166" id="bond85966" line_width="1.0" start="atom46360" type="n2"/>
+      <bond double_ratio="0.75" end="atom97982" id="bond73411" line_width="1.0" start="atom78936" type="n1"/>
+      <bond double_ratio="0.75" end="atom18195" id="bond28522" line_width="1.0" start="atom88310" type="n1"/>
+      <bond double_ratio="0.75" end="atom78936" id="bond78261" line_width="1.0" start="atom45197" type="n1"/>
+      <bond double_ratio="0.75" end="atom21815" id="bond22690" line_width="1.0" start="atom18195" type="n1"/>
+      <bond double_ratio="0.75" end="atom45197" id="bond42720" line_width="1.0" start="atom34086" type="n1"/>
+      <bond double_ratio="0.75" end="atom11552" id="bond41461" line_width="1.0" start="atom78936" type="n1"/>
+      <bond double_ratio="0.75" end="atom34086" id="bond96908" line_width="1.0" start="atom89537" type="n1"/>
+      <bond double_ratio="0.75" end="atom71011" id="bond27908" line_width="1.0" start="atom97982" type="n1"/>
+      <bond double_ratio="0.75" end="atom20678" id="bond4335" line_width="1.0" start="atom46360" type="n1"/>
+      <bond double_ratio="0.75" end="atom89537" id="bond73496" line_width="1.0" start="atom53905" type="n1"/>
     </molecule>
   </cdml>
 </svg>
