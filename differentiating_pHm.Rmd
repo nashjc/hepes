@@ -1,0 +1,38 @@
+```{r}
+library(nlsr)
+pK1 <- -1; pK2 <- 3; pK3 <- 7.55 # literature values
+HEPTOT <- 0.05
+kw <- 1e-14
+source('definitions.R')
+```
+
+Differentiating the synthetic $\mathrm{pH}$ values will let us know how
+every parameter impacts the value of the function. Thankfully, `nlsr`
+already has the necessary tools for that, accessible from plain **R**:
+
+```{r}
+SID <- seq(-5e-2,4e-2,length=1000)
+e <- quote(pHm(SID, HEPTOT, pK1, pK2, pK3))
+pH <- numericDerivR(e, paste0('pK', 1:3), central = TRUE)
+plot(SID, pH, type = 'l')
+```
+
+One minor detail: the values are different enough in their orders of
+magnitude to warrant the use of logarithmic scale. There will be very
+small negative numbers which we'll replace with `NA` to avoid warnings.
+
+```{r}
+g <- attr(pH, 'gradient')
+g[g <= 0 & abs(g) < 1e-9] <- NA
+par(mar = c(5, 6, 4, 2) + .1)
+matplot(SID, g, type = 'l', lty = 1, col = 2:4, log = 'y', ylab = quote(
+	frac(partialdiff*'pH', partialdiff*pK[j])
+))
+legend('bottomright', lty = 1, col = 2:4, legend = sapply(1:3,
+	function(j) bquote(pK[.(j)])
+))
+```
+
+This shows very clearly that the contribution of $\mathrm{p}K_1$ is very
+minor and is only noticeable at significantly negative $\mathrm{SID}$,
+which imply low $\mathrm{pH}$ values, which cannot be reliably measured.
