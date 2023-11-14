@@ -1,0 +1,244 @@
+---
+title: Modeling HEPES buffer with a charge-balance approach
+author: Troels Ring, Søren Risom Kristensen, Ivan Krylov, John C Nash.
+bibliography: manuscript.bib
+---
+
+```{r, echo=FALSE}
+# NOTE: bookdown features (e.g. cross-references) used below
+# This requires the use of a bookdown output format, e.g.
+# bookdown::pdf_document2 or bookdown::html_document2
+```
+
+
+Abstract
+========
+
+Introduction
+============
+
+It has been shown [@Ring2022] that $\mathrm{pH}$ in arbitrary fluids can be
+understood based on the three fundamental principles of
+electroneutrality, conservation of mass, and rules of dissociation as
+devised from physical chemistry. It has also been shown [@Ring2022] that the
+charge-balance approach allows definition of the $\mathrm{pH}$-dependent
+buffer-capacity, and provides a definition of acid content as titratable
+acidity, based on previous work by Kildeberg [@Kildeberg1983]. Recently
+it has been reiterated [@Ring2023-charge] that it is absolutely necessary for this
+modeling approach to take into account the strong ions, which are those
+assumed to be completely dissociated at any $\mathrm{pH}$. In contrast to the
+physico-chemical model of Stewart [@Stewart1978], the charge-balance
+model (CBM, henceforth) has no separation between independent and
+dependent variables. Under the CBM all that can be known about the
+system is gathered in the expression of charge in an explicitly stated
+chemical system. Consequently, if, as an example, $\mathrm{pH}$ is known and charge
+is a known deterministic function of the chemical specification, inverse
+inferences on unknown variables can, at least sometimes, be obtained by
+root finding, since we know that the charge must be zero. In simple
+systems, such as a single monovalent weak acid and strong ions, a single
+unknown variable is explicitly estimable [@Ring2022]. The question
+focused here is if CBM is rich enough to allow inverse inference in more
+complex systems such as with multiprotic buffers. This question arose
+under experiments with HEPES buffered sulfate containing fluids
+[@Ring2023-acid] in which HEPES was modeled as a monovalent buffer with
+pKa 7.5 [@Ring2010] since it was found that estimated $\mathrm{pH}$ was much too
+low when observed $\mathrm{pH}$ was less than about 6. HEPES is a zwitterion with
+formula 2-[4-(2-Hydroxyethyl)piperazin-1-yl]ethane-1-sulfonic acid and
+structure as shown in \@ref(fig:hepes).
+
+```{r hepes, fig.cap = '2-[4-(2-Hydroxyethyl)piperazin-1-yl]ethane-1-sulfonic acid', echo = FALSE}
+knitr::include_graphics('HEPES.svg', auto_pdf = TRUE)
+```
+
+Wikipedia informs [@WP:HEPES] that HEPES has two pK values, one at 3 and
+one at 7.5, but the reference given [@Johnson2014] in Wikipedia states
+that "3" comes from the sulfonate group and 7.5 from one of the
+piperazine nitrogens.  At $20^\circ\mathrm{C}$ Good et al [@Good1966]
+has pKa 3 and 7.55 without detailing which groups are at work, while
+another study [@AlGhobashy2014] mentions that 3 and 7.5 both belongs to
+piperazine amines and informs that the sulfonate group is dissociated
+over "almost the whole $\mathrm{pH}$ range".  Furthermore, is has been stated that
+the nitrogen at the $\mathrm{OH}$ end of HEPES is protonated in methanol
+and the nitrogen in the sulfonate end is protonated in water
+[@Sledz2010].
+
+Hence it was not clear how best to model the $\mathrm{pH}$-dependent
+charge on HEPES to estimate $\mathrm{pH}$ based on known chemistry.
+Furthermore, it was desired to make clear if the $\mathrm{p}K$ values
+for HEPES could be elucidated based on measured $\mathrm{pH}$. Herein,
+these questions will be approached by first developing a model for the
+mean charge on HEPES as a function of $\mathrm{pH}$ and applying this to
+proposed values of set of underlying pKs using data obtained previously
+[@Ring2023-acid]. Next, it will be examined if data generated with
+specified $\mathrm{p}K$ values over extended or restricted range of
+$\mathrm{pH}$ values allows recovery of these same $\mathrm{p}K$ values.
+Accepting that $\mathrm{pH} = -1$ would hardly be realized in biological
+fluid and, anyway would require dramatic ionic strengths invalidating
+conventional understanding of $\mathrm{pH}$ modeling, the consequence
+for modeling of assuming the first $\mathrm{p}K_1$ fixed at different
+low values will be examined. In so far as the developed model for
+$\mathrm{pH}$ dependent charge on HEPES implies a strict ordering of
+$\mathrm{p}K$ values, as will be seen in the Methods section, the
+consequence for recovery of known $\mathrm{p}K$ values of assuming
+strict ordering will be assessed. The final model, thus developed, was
+used with the original observed data to obtain best values for the
+underlying $\mathrm{p}K$ values and the fit assessed. Finally, the
+sensitivity of the final model to imposed noise in $\mathrm{SID}$,
+$\mathrm{[HEPES]}$, or $\mathrm{pH}$ will be presented.
+
+Methods
+=======
+
+Assuming that $\mathrm{p}K_{a1}$ of the sulfonic group is much lower
+than those on the piperazine nitrogens as also supported by conversation
+on StackExchange [@ChemSE:HEPES-pK], we will have the following sequence
+moving from low to high $\mathrm{pH}$:
+
+```{r echo=FALSE}
+# A dash! A dash! My kingdom for a dash!
+# (The things that rmarkdown users have to do without
+# \usepackage{mhchem})
+```
+$\mathrm{I: H^{+}N_1\text-HEP\text-N_4H^{+}SO_3H}$ $\sim \mathrm{p}K_{a1}$ on
+sulfonic group
+
+$\mathrm{II: H^{+}N_1\text-HEP\text-N_4H^{+}SO_3^{-}}$ $\sim \mathrm{p}K_{a2}$ on
+$\mathrm{N_1}$
+
+$\mathrm{III: N_1\text-HEP\text-N_4H^{+}SO_3^{-}}$ $\sim \mathrm{p}K_{a3}$ on
+$\mathrm{N_4}$
+
+$\mathrm{IV: N_1\text-HEP\text-N_4SO_3^{-}}$
+
+Now $\mathrm{I + II + III + IV = HEPTOT}$
+
+From the individual dissociations we have
+
+\[
+\mathrm{IV} = \frac{
+ \mathrm{III} \cdot 10^{-\mathrm{p}K_{a3}}
+}{
+ [\mathrm{H}^{+}]
+} = \frac{
+ \mathrm{II} \cdot 10^{-\mathrm{p}K_{a3}} \cdot 10^{-\mathrm{p}K_{a2}}
+}{
+ [\mathrm{H}^{+}]^2
+} = \frac{
+ \mathrm{I}
+  \cdot 10^{-\mathrm{p}K_{a3}}
+  \cdot 10^{-\mathrm{p}K_{a2}}
+  \cdot 10^{-\mathrm{p}K_{a1}}
+}{
+ [\mathrm{H}^{+}]^3
+}
+\]
+
+\[
+\mathrm{I} = \frac{\mathrm{IV} [\mathrm{H}^{+}]^3}{
+ 10^{-\mathrm{p}K_{a3}} \cdot 10^{-\mathrm{p}K_{a2}} \cdot 10^{-\mathrm{p}K_{a1}}
+}
+\]
+
+\[
+\mathrm{II} = \frac{\mathrm{IV} [\mathrm{H}^{+}]^2}{
+ 10^{-\mathrm{p}K_{a3}} \cdot 10^{-\mathrm{p}K_{a2}}
+}
+\]
+
+\[
+\mathrm{III} = \frac{\mathrm{IV} [\mathrm{H}^{+}]}{
+ 10^{-\mathrm{p}K_{a3}}
+}
+\]
+
+\[
+\mathrm{I} + \mathrm{II} + \mathrm{III} = \mathrm{IV} \cdot \left[
+ \frac{[\mathrm{H}^{+}]^3}{
+  10^{-\mathrm{p}K_{a3}} \cdot 10^{-\mathrm{p}K_{a2}} \cdot 10^{-\mathrm{p}K_{a1}}
+ }
+ +
+ \frac{[\mathrm{H}^{+}]^2}{
+  10^{-\mathrm{p}K_{a3}} \cdot 10^{-\mathrm{p}K_{a2}}
+ }
+ +
+ \frac{[\mathrm{H}^{+}]}{
+  10^{-\mathrm{p}K_{a3}}
+ }
+\right] = \mathrm{HEPTOT} - \mathrm{IV}
+\]
+
+\[
+\mathrm{IV} = \frac{\mathrm{HEPTOT}}{
+ 1 + \left[
+  \frac{[\mathrm{H}^{+}]^3}{
+   10^{-\mathrm{p}K_{a3}} \cdot 10^{-\mathrm{p}K_{a2}} \cdot 10^{-\mathrm{p}K_{a1}}
+  }
+  +
+  \frac{[\mathrm{H}^{+}]^2}{
+   10^{-\mathrm{p}K_{a3}} \cdot 10^{-\mathrm{p}K_{a2}}
+  }
+  +
+  \frac{[\mathrm{H}^{+}]}{
+   10^{-\mathrm{p}K_{a3}}
+  }
+ \right]
+}
+\]
+
+
+So, we can see that $\mathrm{IV}$ is identified from total HEPES
+concentration at a given $\mathrm{pH}$ if the three $\mathrm{p}K$ values
+are known, and the derivation clearly requires that $\mathrm{p}K_{a1} <
+\mathrm{p}K_{a2} < \mathrm{p}K_{a3}$. Consequently, we have quantified
+the concentration of all HEPES moieties. Furthermore, the net charge on
+each of the four HEPES components are known: $\mathrm{I}: +2$;
+$\mathrm{II}: +1$; $\mathrm{III}: 0$; $\mathrm{IV}: -1$. Thereby we have
+obtained a specification for the $\mathrm{pH}$ dependent net charge on
+HEPES given its total concentration and given the three named
+$\mathrm{p}K$ values.  Therefore, with SID denoting strong ion
+difference[@Ring2022] and $K_w$ the auto-dissociation of water, the new
+charge-balance model for HEPES is:
+
+\begin{equation}
+[\mathrm{H}^{+}] + SID - \frac{K_w}{[\mathrm{H}^{+}]} + \mathrm{I} \cdot 2
++ \mathrm{II} - \mathrm{IV} = 0
+\end{equation}
+
+With the three $\mathrm{p}K_a$ values for HEPES taken to be $-1$, $3$
+and $7.55$ this will be used to estimate $\mathrm{pH}$ in experimental
+fluids to compare with observed $\mathrm{pH}$. It should be noted that
+Kildeberg[@Kildeberg1983] derives for any multiprotic substance the
+average charge given an ordered sequence of $\mathrm{p}K_1 <
+\mathrm{p}K_2 \dots < \mathrm{p}K_n$ as
+$N = \frac{
+ 10^{\mathrm{pH} - \mathrm{p}K_1} +
+ 2 \cdot 10^{2 \mathrm{pH} - \mathrm{p}K_1 - \mathrm{p}K_2} +
+ \dots +
+ k \cdot  10^{k \mathrm{pH} - \mathrm{p}K_1 \dots \mathrm{p}K_k}
+}{
+ 1+
+ 10^{\mathrm{pH} - \mathrm{p}K_1} +
+ \cdot 10^{2 \mathrm{pH} - \mathrm{p}K_1 - \mathrm{p}K_2} +
+ \dots +
+ \cdot  10^{k \mathrm{pH} - \mathrm{p}K_1 \dots \mathrm{p}K_k}
+} - n$
+with $n$ denoting the charge on the fully protonated species. For given
+$\mathrm{p}K$ values and $n$ this yields exactly the same charge as
+derived above, but since we are also interested in inverse inference
+about the $\mathrm{p}K$ values based on observed chemistry and
+$\mathrm{pH}$, the first formulation derived here is more malleable when
+specifying required order of $\mathrm{p}K$ entries.
+
+Next, using the observed $\mathrm{pH}$ it was attempted to recover the
+$\mathrm{p}K_a$ values for HEPES based on known chemical composition.
+This included generating _in silico_ data with known $\mathrm{p}K_a$
+values for HEPES and recovering again the $\mathrm{p}K_a$ values from
+the synthetic data and examining the sensitivity of parameter
+estimates/recovery to changing $\mathrm{pH}$ by modification of SID or
+by changing HEPES concentration. The $\mathrm{p}K_a$ values for HEPES
+were found from non-linear regression using **R** package `nlsr`
+[@CRAN:nlsr] and the ordering of the $\mathrm{p}K_a$ values were
+enforced by a difference method documented in supplementary materials.
+
+References
+==========
