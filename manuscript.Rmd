@@ -240,5 +240,66 @@ were found from non-linear regression using **R** package `nlsr`
 [@CRAN:nlsr] and the ordering of the $\mathrm{p}K_a$ values were
 enforced by a difference method documented in supplementary materials.
 
+Appendix: Software considerations
+=================================
+
+The `nlsr` package @CRAN:nlsr which has been used for the estimation of
+parameters in the nonlinear models for this article has some features that 
+more easily permitted the computations. Moreover, discussions concerning how
+to use the software led to unexpected possibilities in that use.
+
+### Ensuring parameters follow a specific ordering
+
+We require that the three $\mathrm{p}K_a$ values be in increasing order of
+numerical value. To simplify the discussion here, we will write these as 
+`p1`, `p2` and `p3` within our R program scripts. Thus we want
+
+```
+       p1  <  p2  < p3
+```
+
+One approach, which we have used here, is to reparameterize the formulas for
+the model so
+
+``` 
+      p2  =  p1 + d12
+      p3  =  p1 + d12 + d23
+```
+
+If we constrain `d12` and `d23` to be positive, or at least non-negative, then
+the new parameterization will ensure the ordering. However, this does require 
+that the software can offer bounds constraints on the parameters. `nslr` is 
+capable in this way, and even allows upper and lower bounds to be equal, 
+resulting in fixed parameters, or **masks**. Other software in R has similar
+capabilities, but the built-in `nls()` function only handles bounds if the
+`port` algorithm is used, and there are warnings that this code may be 
+incomplete. Package `minpack.lm` also handles bounds, though a failure was
+encountered in one example (@NashBhattacharjee).
+
+### Vectorizing a function ???
+
+JN: As yet I don't understand the workings of this, and must admit to never
+having used Vectorize(). I think it worthwhile giving a good explanation.
+
+
+### Gauging the reliability of the estimated parameters
+
+All parameter estimation methods must contend with the possibility that 
+a variety of parameter values may give very similar magnitudes for the loss
+function (e.g, sum of squared residuals) that is optimized to obtain the
+estimates. In the case of estimation that can be converted to minimizing a
+sum of squares, the Jacobian of the vector of residuals will become close 
+to singular if parameters are indeterminate. This can be judged by computing
+the **singular values** (??JN: do we want a reference) of the Jacobian and
+package `nlsr` does this and displays the values when a summary of a solution 
+is requested. A rule of thumb is to regard the Jacobian as essentially 
+singular if the ratio of the smallest to largest singular value is "small".
+A value of smaller than 1e-4 would be a typical criterion. Note that more than
+one singular value may be small, indicating that there is more than one 
+dimension of indeterminacy. However, such indicators apply to the ensemble of
+parameters, and as such concern the overall model.
+
+
+
 References
 ==========
