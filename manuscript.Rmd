@@ -276,11 +276,71 @@ capabilities, but the built-in `nls()` function only handles bounds if the
 incomplete. Package `minpack.lm` also handles bounds, though a failure was
 encountered in one example (@NashBhattacharjee).
 
-### Vectorizing a function ???
+### Vectorizing a function
 
-JN: As yet I don't understand the workings of this, and must admit to never
-having used Vectorize(). I think it worthwhile giving a good explanation.
+**IK**: This feels like I'm writing a tutorial. Should I be less
+detailed?
 
+**R** scripts naturally lend themselves to vectorization, thanks to the
+language performing many operations on whole vectors. For example, **R**
+has no problem evaluating the charge-balance equation function for a
+vector of different values of $[\mathrm H]$ with other values remaining
+scalars:
+
+```{r HEPESFUNC}
+HEPESFUNC <- function(H,SID,HEPTOT,pK1,pK2,pK3) {
+	XX <- (H^3/(10^-pK3*10^-pK2*10^-pK1)+H^2/(10^-pK3*10^-pK2)+H/(10^-pK3))
+	IV <- HEPTOT/(1+XX)
+	I <- IV*H^3/(10^-pK3*10^-pK2*10^-pK1)
+	II <- IV*H^2/(10^-pK3*10^-pK2)
+	III <- IV*H/10^-pK3
+	H - kw/H + SID + I*2 + II - IV
+}
+```
+
+This principle is used by the non-linear regression functions which, when
+given a formula `y ~ f(x, theta)` and vectors `x` of independent
+variables and `y` of observed values of the dependent variable, call the
+model function `f` with the whole vector `x` as argument, expecting to
+receive an estimate of the whole `y` at the current value of the
+parameter `theta` in response.
+
+Some functions are not naturally vectorized and cannot be easily changed
+to obtain this property. For example, the model function for a
+non-linear regression problem may involve root-finding using `uniroot`:
+
+```{r}
+# Which pH value satisfies the charge-balance equation?
+pH <- function(SID, HEPTOT, pK1, pK2, pK3)
+  -log10(uniroot(HEPESFUNC,c(1e-20,1),tol=1e-20,maxiter=1e4,
+                 HEPTOT=HEPTOT,SID = SID, pK1=pK1,pK2=pK2,pK3=pK3)$root)
+```
+
+The underlying mechanism of `uniroot()` only works with scalar functions
+of one argument, so passing vectors of length more than `1` to this
+function will cause an error: `uniroot()` is not prepared to find
+multiple different roots for every given set of the parameter values. In
+order to use this function with non-linear regression methods, a wrapper
+is needed. This wrapper must call the original function in a loop for
+every element of the vector arguments passed to it:
+
+```{r}
+pH.wrapper <- function(SID, HEPTOT, pK1, pK2, pK3)
+ vapply(SID, function(SID_i)
+  -log10(uniroot(HEPESFUNC, c(1e-20,1), tol = 1e-20, maxiter = 1e4,
+                 HEPTOT = HEPTOT, SID = SID_i,
+                 pK1 = pK1, pK2 = pK2, pK3 = pK3)$root),
+  numeric(1)
+ )
+```
+
+The base function `Vectorize` automates this transformation. It returns
+a wrapper function that obtains the values of every argument given to
+the wrapper and passes them to a live-constructed call to `mapply()`,
+letting the latter call the original function. A call to
+`mapply(f, a, b, c)`, returns a vector of values of
+`f(a[i], b[i], c[i])` for every applicable `i`, subject to vector
+recycling rules.
 
 ### Gauging the reliability of the estimated parameters
 
