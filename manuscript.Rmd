@@ -357,6 +357,78 @@ all.equal(ans, pHm(
 ))
 ```
 
+Unfortunately, the use of automatic vectorization precludes the use of
+fully automatic symbolic differentiation: static code analysis will not
+go past `vapply`, `mapply`, or `uniroot`. Still, it is possible to
+construct most of the expression piece by piece and have it
+differentiated this way:
+
+```{r}
+charge_balance <- local({
+	XX <- quote(H^3/(10^-pK3*10^-pK2*10^-pK1)+H^2/(10^-pK3*10^-pK2)+H/(10^-pK3))
+	IV <- substitute(HEPTOT/(1+XX))
+	I <- substitute(IV*H^3/(10^-pK3*10^-pK2*10^-pK1))
+	II <- substitute(IV*H^2/(10^-pK3*10^-pK2))
+	III <- substitute(IV*H/10^-pK3)
+	nlsr::codeDeriv(
+		substitute(H - kw/H + SID + I*2 + II - IV),
+		c('H', 'pK1', 'pK2', 'pK3')
+	)
+})
+# a few screenfuls of code; >2500 pages of output with verbose=TRUE
+```
+
+In order to obtain the final Jacobian, we will have to somehow
+differentiate past the root-finding operation. For that we will use the
+implicit function theorem. Let the charge-balance equation be
+$f([\mathrm H], \theta) = 0$, with $[\mathrm H]$ being the desired
+equilibrium concentration of protons and $\theta$ symbolising all of the
+parameters of the equation. It implicitly defines the function
+$[\mathrm H]_\mathrm{eq}(\theta)$ that satisfies
+$F(\theta) = f([\mathrm H]_\mathrm{eq}(\theta), \theta) = 0$. Differentiating the
+latter equation by $\theta$, we get $\frac{dF}{d\theta} =
+\frac{\partial{}f}{\partial[\mathrm H]}
+\frac{d[\mathrm H]_\mathrm{eq}}{d\theta} +
+\frac{\partial{}f}{\partial\theta} \frac{d\theta}{d\theta} = 0$, from
+which we get $\frac{d[\mathrm H]_\mathrm{eq}}{d\theta} =
+-\frac{\partial{}f/\partial\theta}{\partial{}f/\partial[\mathrm H]}$:
+
+```{r}
+pH.sym <- function(SID, HEPTOT, pK1, pK2, pK3) {
+ H <- vapply(SID, function(SID) { # for every point...
+  # find the root of the function
+  H <- uniroot(HEPESFUNC, c(1e-20,1), tol = 1e-20, maxiter = 1e4,
+                 HEPTOT = HEPTOT, SID = SID,
+                 pK1 = pK1, pK2 = pK2, pK3 = pK3)$root
+  # evaluate the derivatives by H and parameters
+  g <- attr(eval(charge_balance), 'gradient')
+  # and calculate the derivative of the H_eq by parameters;
+  # combine together for easier access by vapply
+  c(H, -g[,2:4]/g[,1])
+ }, numeric(4)
+ )
+ # now take the negative logarithm to obtain pH
+ structure(-log10(H[1,]), gradient = -(1/(H[1,] * log(10))) * t(H[-1,]))
+}
+pH.sym(
+ c(.04, .035), .05, -1, 3, 7.55
+)
+```
+
+This gets similar, but not exactly the same results as numeric
+differentiation:
+
+```{r}
+nlsr::numericDerivR(
+ quote(pHm(
+  c(.04, .035), .05, pK1, pK2, pK3
+ )),
+ c('pK1', 'pK2', 'pK3'),
+ list2env(list(pK1 = -1, pK2 = 3, pK3 = 7.55)),
+ central = TRUE
+)
+```
+
 ### Gauging the reliability of the estimated parameters
 
 All parameter estimation methods must contend with the possibility that 
