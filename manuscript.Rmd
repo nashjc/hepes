@@ -202,6 +202,7 @@ charge-balance model for HEPES is:
 \begin{equation}
 [\mathrm{H}^{+}] + \mathrm{SID} - \frac{K_w}{[\mathrm{H}^{+}]}
 + \mathrm{I} \cdot 2 + \mathrm{II} - \mathrm{IV} = 0
+(\#eq:charge-balance)
 \end{equation}
 
 With the three $\mathrm{p}K_a$ values for HEPES taken to be $-1$, $3$
@@ -327,11 +328,11 @@ every element of the vector arguments passed to it:
 
 ```{r}
 pH.wrapper <- function(SID, HEPTOT, pK1, pK2, pK3)
- vapply(SID, function(SID_i)
+ mapply(function(SID, HEPTOT)
   -log10(uniroot(HEPESFUNC, c(1e-20,1), tol = 1e-20, maxiter = 1e4,
-                 HEPTOT = HEPTOT, SID = SID_i,
+                 HEPTOT = HEPTOT, SID = SID,
                  pK1 = pK1, pK2 = pK2, pK3 = pK3)$root),
-  numeric(1)
+  SID = SID, HEPTOT = HEPTOT
  )
 ```
 
@@ -418,6 +419,61 @@ nlsr::numericDerivR(
  list2env(list(pK1 = -1, pK2 = 3, pK3 = 7.55)),
  central = TRUE
 )
+```
+
+### Solving the charge-balance equations in the least squares sense
+
+Yet another way to model the data is to plug the experimental values of
+$\mathrm{SID}$ and measured $\mathrm{pH}$ straight into the
+charge-balance equation \@ref(eq:charge-balance), without going through
+the intermediate step of finding the negative logaritm of the root of
+the function. This changes the problem: instead of
+$\min_{\mathrm{p}K_{a,1}, \mathrm{p}K_{a,2}, \mathrm{p}K_{a,3}}
+\sum_i(\mathrm p\hat{\mathrm H}(\mathrm{SID}_i, \mathrm{p}K_{a,1},
+\mathrm{p}K_{a,2}, \mathrm{p}K_{a,3}) - \mathrm{pH}_i)^2$, we are now
+minimising the sum of squared residuals from eq.
+\@ref(eq:charge-balance) itself:
+
+```{r}
+load('HEPES.RData') # provides the DD data.frame
+charge_balance_fn <- function() NULL
+formals(charge_balance_fn) <- formals(HEPESFUNC)
+body(charge_balance_fn) <- local({
+	XX <- quote(H^3/(10^-pK3*10^-pK2*10^-pK1)+H^2/(10^-pK3*10^-pK2)+H/(10^-pK3))
+	IV <- substitute(HEPTOT/(1+XX))
+	I <- substitute(IV*H^3/(10^-pK3*10^-pK2*10^-pK1))
+	II <- substitute(IV*H^2/(10^-pK3*10^-pK2))
+	III <- substitute(IV*H/10^-pK3)
+	nlsr::codeDeriv(
+		substitute(H - kw/H + SID + I*2 + II - IV),
+		c('pK1', 'pK2', 'pK3')
+	)
+})
+
+loss <- function(x) charge_balance_fn(
+	H = 10^-DD$OBS, SID = DD$SID, HEPTOT = DD$HEPES,
+	pK1 = x['pK1'], pK2 = x['pK2'], pK3 = x['pK3']
+)
+(m_cb <- nlsr::nlfb(
+	start = c(pK1 = -1, pK2 = 3, pK3 = 7.55),
+	resfn = loss, jacfn = loss,
+	lower = -3, upper = 9
+))
+```
+
+While this avoids finding the roots of the charge-balance equation, the
+implied residual structure (normally-distributed errors in the
+$\mathrm{pH}$ measurements in the original model vs.
+normally-distributed charge imbalances in concentration units in the
+current model) is different, and so are the resulting estimates:
+
+```{r}
+(m_rf <- nlsr::nlxb(
+	OBS ~ pH.wrapper(SID, HEPES, pK1, pK2, pK3),
+	data = DD, start = c(pK1 = -1, pK2 = 3, pK3 = 7.55),
+	lower = -3, upper = 9,
+	control = list(japprox = 'jacentral')
+))
 ```
 
 ### Gauging the reliability of the estimated parameters
