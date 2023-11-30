@@ -1,0 +1,89 @@
+First let's load the results produced by `noise.R` overnight.
+
+The results are organised a bit clumsily, with `pK_true` being a list of
+numeric vectors. Our goal is to group by every experiment condition (set
+of true $\mathrm{p}K_a$ values, number of points, noise-to-signal ratio,
+kind of noise) and summarise the $10$ repeats that were conducted with
+different samples of noise.
+
+```{r}
+n <- readRDS('noise.rds')
+# On its own, `by` cannot group on list columns, so produce a surrogate
+# key for the true pK column, representing numeric vectors as strings.
+# This is probably not efficient at all, but will work for our purposes.
+n$idx <- as.factor(sapply(n$pK_true, paste, collapse = ' '))
+levels(n$idx) <- seq_along(levels(n$idx))
+pn <- do.call(rbind, by(
+	n, n[c('noise_ratio','n_points','noise_kind', 'idx')],
+	function(d) {
+		pK_true <- d$pK_true[[1]]
+		# combine all estimated pKs into one matrix
+		pK_est <- simplify2array(d$pK_est)
+		d$pK_est <- NULL
+		cbind(d[1,],
+			pK_est = I(list(t(pK_est))),
+			# average residual: should approach 0 for unbiased estimator
+			res_mean = mean(pK_est - pK_true),
+			# deviance of residuals: measures the spread of the
+			# estimates
+			res_dev = mean((pK_est - pK_true)^2)
+		)
+	}
+))
+```
+
+Every row of the newly obtained `data.frame` now contains results for
+every repeat of the same set of experimental conditions:
+
+```{r}
+head(pn)
+pn[[1,'pK_est']]
+```
+
+Let's reduce it further, averaging every generated set of true
+$\mathrm{p}K_a$ values:
+
+```{r}
+pna <- aggregate(
+	pn[c('res_mean','res_dev')],
+	pn[c('noise_ratio','n_points','noise_kind')],
+	mean
+)
+```
+
+This lets us plot the average estimation error and the standard
+deviation of the estimates:
+```{r}
+lattice::levelplot(
+	res_mean ~ noise_ratio + n_points | noise_kind, pna,
+	group = noise_kind, scales = list(log = 10),
+	main = quote(
+		'Average '*pK[a]*' estimation error '*
+		'(should be close to 0)'
+	),
+	xlab = 'Noise-to-signal ratio',
+	ylab = 'Number of known points',
+	cuts = 255, col.regions = hcl.colors(256, 'Broc')
+)
+```
+
+I don't see any pattern in the data, and it seems to be fairly centered
+around $0$, so the estimate is effectively unbiased, even in presence of
+non-normally-distributed noise. But what about the variance?
+```{r}
+lattice::levelplot(
+	sqrt(res_dev) ~ noise_ratio + n_points | noise_kind, pna,
+	group = noise_kind, scales = list(log = 10),
+	main = quote(
+		'Standard deviation of '*pK[a]*' estimate'
+	),
+	xlab = 'Noise-to-signal ratio',
+	ylab = 'Number of known points',
+	cuts = 255, col.regions = hcl.colors(256, 'Terrain 2')
+)
+```
+
+Given $10^{1.5}$ points and realistic (?) noise, the standard deviation
+of the $\mathrm{p}K_a$ estimates can be as high as $1.5$. Under
+three-sigma rule, this gives us an error of up to $4.5$ $\mathrm{pH}$
+units...
