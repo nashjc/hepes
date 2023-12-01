@@ -33,7 +33,7 @@ pn <- do.call(rbind, by(
 ```
 
 Every row of the newly obtained `data.frame` now contains results for
-every repeat of the same set of experimental conditions:
+all repeats of the same set of experimental conditions:
 
 ```{r}
 head(pn)
@@ -54,7 +54,8 @@ pna <- aggregate(
 This lets us plot the average estimation error and the standard
 deviation of the estimates:
 ```{r}
-lattice::levelplot(
+library(lattice)
+levelplot(
 	res_mean ~ noise_ratio + n_points | noise_kind, pna,
 	group = noise_kind, scales = list(log = 10),
 	main = quote(
@@ -71,7 +72,7 @@ I don't see any pattern in the data, and it seems to be fairly centered
 around $0$, so the estimate is effectively unbiased, even in presence of
 non-normally-distributed noise. But what about the variance?
 ```{r}
-lattice::levelplot(
+levelplot(
 	sqrt(res_dev) ~ noise_ratio + n_points | noise_kind, pna,
 	group = noise_kind, scales = list(log = 10),
 	main = quote(
@@ -79,11 +80,94 @@ lattice::levelplot(
 	),
 	xlab = 'Noise-to-signal ratio',
 	ylab = 'Number of known points',
-	cuts = 255, col.regions = hcl.colors(256, 'Terrain 2')
+	cuts = 255, col.regions = hcl.colors(256, 'Terrain 2'),
+	panel = function(x, y, z, subscripts, at, contour, region, ...) {
+		panel.levelplot(
+			x = x, y = y, z = z, subscripts = subscripts,
+			at = at, contour = FALSE, region = TRUE, ...
+		)
+		panel.levelplot(
+			x = x, y = y, z = z, subscripts = subscripts, region = FALSE,
+			at = c(1,2,3), contour = TRUE,
+			labels = list(cex = .75), label.style = 'align', ...
+		)
+	}
 )
 ```
 
-Given $10^{1.5}$ points and realistic (?) noise, the standard deviation
-of the $\mathrm{p}K_a$ estimates can be as high as $1.5$. Under
-three-sigma rule, this gives us an error of up to $4.5$ $\mathrm{pH}$
-units...
+What about the individual $\mathrm{p}K_a$ values?
+
+```{r, fig.height = 10}
+pnw <- cbind(pna, t(mapply(function(est, true) {
+	rowMeans((t(est) - true)^2)
+}, pn$pK_est, pn$pK_true)))
+levelplot(
+	sqrt(pK1) + sqrt(pK2) + sqrt(pK3) ~ noise_ratio + n_points | noise_kind,
+	aggregate(
+		pnw[c('pK1','pK2','pK3')],
+		pnw[c('noise_ratio','n_points','noise_kind')],
+		mean
+	),
+	group = noise_kind, scales = list(log = 10),
+	main = quote(
+		'Standard deviation of '*pK[a]*' estimate'
+	),
+	xlab = 'Noise-to-signal ratio',
+	ylab = 'Number of known points',
+	cuts = 255, col.regions = hcl.colors(256, 'Terrain 2'),
+	panel = function(x, y, z, subscripts, at, contour, region, ...) {
+		panel.levelplot(
+			x = x, y = y, z = z, subscripts = subscripts,
+			at = at, contour = FALSE, region = TRUE, ...
+		)
+		panel.levelplot(
+			x = x, y = y, z = z, subscripts = subscripts, region = FALSE,
+			at = pretty(z), contour = TRUE,
+			labels = list(cex = .75), label.style = 'align', ...
+		)
+	}
+)
+```
+
+One more way to quantify the error. Let's take a look at every model
+fitted so far, group by experiment conditions (noise-to-signal ratio,
+number of points, noise distribution) and obtain the 95% highest
+absolute deviation between estimated and true value of individual
+$\mathrm{p}K_a$s. This will save us from having to recalculate standard
+deviations of the estimates into confidence bands. Bonus points if the
+error turs out to be independent from the noise distribution.
+
+```{r, fig.height = 10}
+nw <- cbind(n, t(abs(mapply(`-`, n$pK_est, n$pK_true))))
+levelplot(
+	pK1 + pK2 + pK3 ~ noise_ratio + n_points | noise_kind,
+	aggregate(
+		nw[c('pK1','pK2','pK3')],
+		nw[c('noise_ratio','n_points','noise_kind')],
+		quantile, .95
+	),
+	group = noise_kind, scales = list(log = 10),
+	main = quote(
+		{95^'th'}*' percentile of absolute '*pK[a]*' estimation error'
+	),
+	xlab = 'Noise-to-signal ratio',
+	ylab = 'Number of known points',
+	cuts = 255, col.regions = hcl.colors(256, 'Terrain 2'),
+	panel = function(x, y, z, subscripts, at, contour, region, ...) {
+		panel.levelplot(
+			x = x, y = y, z = z, subscripts = subscripts,
+			at = at, contour = FALSE, region = TRUE, ...
+		)
+		panel.levelplot(
+			x = x, y = y, z = z, subscripts = subscripts, region = FALSE,
+			at = pretty(z), contour = TRUE,
+			labels = list(cex = .75), label.style = 'align', ...
+		)
+	}
+)
+```
+
+Hard to say whether the noise distribution really makes a difference,
+but $\mathrm{p}K_{a3}$ can be estimated reliably, $\mathrm{p}K_{a2}$ may
+require a lot of points and good agreement between experiment and model,
+and $\mathrm{p}K_{a1}$ is absolutely hopeless. But we knew about the latter.
