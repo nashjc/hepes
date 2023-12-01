@@ -1,0 +1,173 @@
+First let's load the results produced by `noise.R` overnight.
+
+The results are organised a bit clumsily, with `pK_true` being a list of
+numeric vectors. Our goal is to group by every experiment condition (set
+of true $\mathrm{p}K_a$ values, number of points, noise-to-signal ratio,
+kind of noise) and summarise the $10$ repeats that were conducted with
+different samples of noise.
+
+```{r}
+n <- readRDS('noise.rds')
+# On its own, `by` cannot group on list columns, so produce a surrogate
+# key for the true pK column, representing numeric vectors as strings.
+# This is probably not efficient at all, but will work for our purposes.
+n$idx <- as.factor(sapply(n$pK_true, paste, collapse = ' '))
+levels(n$idx) <- seq_along(levels(n$idx))
+pn <- do.call(rbind, by(
+	n, n[c('noise_ratio','n_points','noise_kind', 'idx')],
+	function(d) {
+		pK_true <- d$pK_true[[1]]
+		# combine all estimated pKs into one matrix
+		pK_est <- simplify2array(d$pK_est)
+		d$pK_est <- NULL
+		cbind(d[1,],
+			pK_est = I(list(t(pK_est))),
+			# average residual: should approach 0 for unbiased estimator
+			res_mean = mean(pK_est - pK_true),
+			# deviance of residuals: measures the spread of the
+			# estimates
+			res_dev = mean((pK_est - pK_true)^2)
+		)
+	}
+))
+```
+
+Every row of the newly obtained `data.frame` now contains results for
+all repeats of the same set of experimental conditions:
+
+```{r}
+head(pn)
+pn[[1,'pK_est']]
+```
+
+Let's reduce it further, averaging every generated set of true
+$\mathrm{p}K_a$ values:
+
+```{r}
+pna <- aggregate(
+	pn[c('res_mean','res_dev')],
+	pn[c('noise_ratio','n_points','noise_kind')],
+	mean
+)
+```
+
+This lets us plot the average estimation error and the standard
+deviation of the estimates:
+```{r}
+library(lattice)
+levelplot(
+	res_mean ~ noise_ratio + n_points | noise_kind, pna,
+	group = noise_kind, scales = list(log = 10),
+	main = quote(
+		'Average '*pK[a]*' estimation error '*
+		'(should be close to 0)'
+	),
+	xlab = 'Noise-to-signal ratio',
+	ylab = 'Number of known points',
+	cuts = 255, col.regions = hcl.colors(256, 'Broc')
+)
+```
+
+I don't see any pattern in the data, and it seems to be fairly centered
+around $0$, so the estimate is effectively unbiased, even in presence of
+non-normally-distributed noise. But what about the variance?
+```{r}
+levelplot(
+	sqrt(res_dev) ~ noise_ratio + n_points | noise_kind, pna,
+	group = noise_kind, scales = list(log = 10),
+	main = quote(
+		'Standard deviation of '*pK[a]*' estimate'
+	),
+	xlab = 'Noise-to-signal ratio',
+	ylab = 'Number of known points',
+	cuts = 255, col.regions = hcl.colors(256, 'Terrain 2'),
+	panel = function(x, y, z, subscripts, at, contour, region, ...) {
+		panel.levelplot(
+			x = x, y = y, z = z, subscripts = subscripts,
+			at = at, contour = FALSE, region = TRUE, ...
+		)
+		panel.levelplot(
+			x = x, y = y, z = z, subscripts = subscripts, region = FALSE,
+			at = c(1,2,3), contour = TRUE,
+			labels = list(cex = .75), label.style = 'align', ...
+		)
+	}
+)
+```
+
+What about the individual $\mathrm{p}K_a$ values?
+
+```{r, fig.height = 10}
+pnw <- cbind(pna, t(mapply(function(est, true) {
+	rowMeans((t(est) - true)^2)
+}, pn$pK_est, pn$pK_true)))
+levelplot(
+	sqrt(pK1) + sqrt(pK2) + sqrt(pK3) ~ noise_ratio + n_points | noise_kind,
+	aggregate(
+		pnw[c('pK1','pK2','pK3')],
+		pnw[c('noise_ratio','n_points','noise_kind')],
+		mean
+	),
+	group = noise_kind, scales = list(log = 10),
+	main = quote(
+		'Standard deviation of '*pK[a]*' estimate'
+	),
+	xlab = 'Noise-to-signal ratio',
+	ylab = 'Number of known points',
+	cuts = 255, col.regions = hcl.colors(256, 'Terrain 2'),
+	panel = function(x, y, z, subscripts, at, contour, region, ...) {
+		panel.levelplot(
+			x = x, y = y, z = z, subscripts = subscripts,
+			at = at, contour = FALSE, region = TRUE, ...
+		)
+		panel.levelplot(
+			x = x, y = y, z = z, subscripts = subscripts, region = FALSE,
+			at = pretty(z), contour = TRUE,
+			labels = list(cex = .75), label.style = 'align', ...
+		)
+	}
+)
+```
+
+One more way to quantify the error. Let's take a look at every model
+fitted so far, group by experiment conditions (noise-to-signal ratio,
+number of points, noise distribution) and obtain the 95% highest
+absolute deviation between estimated and true value of individual
+$\mathrm{p}K_a$s. This will save us from having to recalculate standard
+deviations of the estimates into confidence bands. Bonus points if the
+error turs out to be independent from the noise distribution.
+
+```{r, fig.height = 10}
+nw <- cbind(n, t(abs(mapply(`-`, n$pK_est, n$pK_true))))
+levelplot(
+	pK1 + pK2 + pK3 ~ noise_ratio + n_points | noise_kind,
+	aggregate(
+		nw[c('pK1','pK2','pK3')],
+		nw[c('noise_ratio','n_points','noise_kind')],
+		quantile, .95
+	),
+	group = noise_kind, scales = list(log = 10),
+	main = quote(
+		{95^'th'}*' percentile of absolute '*pK[a]*' estimation error'
+	),
+	xlab = 'Noise-to-signal ratio',
+	ylab = 'Number of known points',
+	cuts = 255, col.regions = hcl.colors(256, 'Terrain 2'),
+	panel = function(x, y, z, subscripts, at, contour, region, ...) {
+		panel.levelplot(
+			x = x, y = y, z = z, subscripts = subscripts,
+			at = at, contour = FALSE, region = TRUE, ...
+		)
+		panel.levelplot(
+			x = x, y = y, z = z, subscripts = subscripts, region = FALSE,
+			at = pretty(z), contour = TRUE,
+			labels = list(cex = .75), label.style = 'align', ...
+		)
+	}
+)
+```
+
+Hard to say whether the noise distribution really makes a difference,
+but $\mathrm{p}K_{a3}$ can be estimated reliably, $\mathrm{p}K_{a2}$ may
+require a lot of points and good agreement between experiment and model,
+and $\mathrm{p}K_{a1}$ is absolutely hopeless. But we knew about the latter.
