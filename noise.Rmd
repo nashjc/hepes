@@ -171,3 +171,67 @@ Hard to say whether the noise distribution really makes a difference,
 but $\mathrm{p}K_{a3}$ can be estimated reliably, $\mathrm{p}K_{a2}$ may
 require a lot of points and good agreement between experiment and model,
 and $\mathrm{p}K_{a1}$ is absolutely hopeless. But we knew about the latter.
+
+Does the estimation error depend on the vicinity between the observed
+$\mathrm{pH}$ and the true value of $\mathrm{p}K_a$?
+
+```{r, fig.height = 8}
+source('definitions.R')
+kw <- 1e-14
+HEPTOT <- 0.05
+nw <- cbind(nw, vicinity = t(mapply(
+	function(pK_true, n_points) {
+		SID <- seq(-5e-2, 4e-2, n_points)
+		pK_true - mean(pHm(
+			SID, HEPTOT, pK_true[1], pK_true[2], pK_true[3]
+		))
+	}, nw$pK_true, nw$n_points
+)))
+p1 <- xyplot(
+	sqrt(pK1) ~ vicinity.1,
+	aggregate(
+		cbind(nw[c('pK1')]^2, nw['vicinity.1']),
+		nw[c('noise_ratio','n_points','noise_kind','idx')],
+		mean
+	),
+	subset = n_points <= 100 & noise_ratio <= 1e-2,
+	group = paste(noise_ratio, n_points, noise_kind),
+	scales = list(y = list(log = 10)),
+	xlab = quote(pK[1]^'true' - mean(pH)),
+	ylab = quote(sigma(pK[1]))
+)
+p2 <- xyplot(
+	sqrt(pK2) ~ vicinity.2,
+	aggregate(
+		cbind(nw[c('pK2')]^2, nw['vicinity.2']),
+		nw[c('noise_ratio','n_points','noise_kind','idx')],
+		mean
+	),
+	subset = n_points <= 100 & noise_ratio <= 1e-2,
+	group = paste(noise_ratio, n_points, noise_kind),
+	scales = list(y = list(log = 10)),
+	xlab = quote(pK[2]^'true' - mean(pH)),
+	ylab = quote(sigma(pK[2]))
+)
+p3 <- xyplot(
+	sqrt(pK3) ~ vicinity.3,
+	aggregate(
+		cbind(nw[c('pK3')]^2, nw['vicinity.3']),
+		nw[c('noise_ratio','n_points','noise_kind','idx')],
+		mean
+	),
+	subset = n_points <= 100 & noise_ratio <= 1e-2,
+	group = paste(noise_ratio, n_points, noise_kind),
+	scales = list(y = list(log = 10)),
+	xlab = quote(pK[3]^'true' - mean(pH)),
+	ylab = quote(sigma(pK[3]))
+)
+print(p1, split = c(1, 1, 1, 3), more = TRUE)
+print(p2, split = c(1, 2, 1, 3), more = TRUE)
+print(p3, split = c(1, 3, 1, 3))
+```
+
+It's very hard to see a pattern, and we have too much variability in
+kinds of noise and not enough variability in true $\mathrm{p}K_a$
+values, but it seems that if the true value of $\mathrm{p}K_a$ exceeds
+the $\mathrm{pH}$ value on average, it can be reliably estimated.
